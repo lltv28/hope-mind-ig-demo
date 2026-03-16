@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hope Mind — IG DM Auto-Responder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="design-tokens.css">
+  <style>
+    /* Client (incoming) message — right-aligned, same as .message-user but with meta label */
+    .message-client-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .message-client-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--alpha-light-500);
+      padding-right: 4px;
+    }
+
+    .message-client-meta .via-ig {
+      font-size: 11px;
+      color: var(--alpha-light-400);
+    }
+
+    /* Hint overlay */
+    .hint {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--alpha-light-400);
+      transition: opacity 300ms;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <div class="sidebar-user">
+            <div class="avatar avatar--sm">
+              <div class="avatar-initials" style="background:linear-gradient(135deg, rgba(16,104,68,0.80), rgba(16,104,68,0.60))">HM</div>
+            </div>
+            <span class="sidebar-username">Hope Mind</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#" class="sidebar-item sidebar-item--active">
+            <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 12h.01M12 12h.01M16 12c0 3.314-2.686 5-6 5a8.065 8.065 0 01-2.472-.379L4 18v-3.08C2.78 13.752 2 12.428 2 11c0-3.314 2.686-6 6-6h2c3.314 0 6 2.686 6 6z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>IG DM Inbox</span>
+          </a>
+          <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 3l-1 1m0 0l-1 1M9 4l1 1m-1-1V3m4 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 10H3m14 0h-2M7.05 6.05L5.636 4.636m8.728 8.728L15.778 14.778M7.05 13.95l-1.414 1.414M14.364 5.636L15.778 4.222" stroke-linecap="round"/>
+            </svg>
+            <span>New Chat</span>
+          </a>
+          <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 12h.01M12 12h.01M16 12c0 3.314-2.686 5-6 5a8.065 8.065 0 01-2.472-.379L4 18v-3.08C2.78 13.752 2 12.428 2 11c0-3.314 2.686-6 6-6h2c3.314 0 6 2.686 6 6z" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>My Sessions</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="#" class="sidebar-item">
+            <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 13a3 3 0 100-6 3 3 0 000 6z"/>
+              <path d="M10 1v2m0 14v2M4.22 4.22l1.42 1.42m8.72 8.72l1.42 1.42M1 10h2m14 0h2M4.22 15.78l1.42-1.42m8.72-8.72l1.42-1.42"/>
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="topbar-left">
+            <span class="topbar-label">IG DM Auto-Responder</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Background shapes -->
+      <div class="bg-shapes">
+        <div class="bg-ellipse bg-ellipse--1"></div>
+        <div class="bg-ellipse bg-ellipse--2"></div>
+      </div>
+
+      <!-- Chat View (always visible) -->
+      <section class="view view--chat" style="display:flex">
+        <div class="chat-messages" id="chatMessages">
+          <!-- Messages injected by JS -->
+        </div>
+
+        <!-- Chat Input (bottom) -->
+        <div class="chat-input-bottom">
+          <div class="chat-input-card">
+            <div class="chat-input-area">
+              <textarea class="chat-textarea" placeholder="Ask me anything..." rows="1" disabled></textarea>
+            </div>
+            <div class="chat-input-toolbar">
+              <div class="toolbar-left">
+                <button class="icon-btn icon-btn--subtle" aria-label="Attach file" disabled>
+                  <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10 5v10M5 10h10" stroke-linecap="round"/>
+                  </svg>
+                </button>
+                <div class="agent-chip">
+                  <svg class="agent-chip-icon" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 1l1.5 3 3.5.5-2.5 2.5.5 3.5L6 9l-3 1.5.5-3.5L1 4.5 4.5 4 6 1z" fill="currentColor"/>
+                  </svg>
+                  <span>Hope Mind</span>
+                  <span class="agent-chip-badge">+2</span>
+                </div>
+              </div>
+              <div class="toolbar-right">
+                <div class="btn-group">
+                  <button class="icon-btn icon-btn--subtle" aria-label="More options" disabled>
+                    <svg class="icon" viewBox="0 0 20 20" fill="currentColor">
+                      <circle cx="10" cy="5" r="1.5"/><circle cx="10" cy="10" r="1.5"/><circle cx="10" cy="15" r="1.5"/>
+                    </svg>
+                  </button>
+                  <button class="icon-btn icon-btn--mic" aria-label="Voice input" disabled>
+                    <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M10 2a3 3 0 00-3 3v5a3 3 0 006 0V5a3 3 0 00-3-3z"/>
+                      <path d="M5 10a5 5 0 0010 0M10 15v3m-3 0h6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="send-btn" aria-label="Send message" disabled>
+                  <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 15V5m0 0l-4 4m4-4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <div class="send-btn-inset"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="hint" id="hint">Press left shift to start</div>
+
+  <script>
+    const messages = [
+      { role: 'client', text: 'yo i saw ur post about the 90 day program whats that about' },
+      { role: 'ai', text: 'Hey! Great question. We start by mapping out your goals in week one, then build a fully custom plan around them. What area are you most looking to improve right now?' },
+      { role: 'client', text: 'honestly just tryna get in shape and stop being so inconsistent lol' },
+      { role: 'ai', text: 'That makes total sense, and consistency is actually the #1 thing the program is designed around. Are you looking for something fully online, or would you prefer in-person?' },
+      { role: 'client', text: 'online for sure my schedule is all over the place' },
+      { role: 'ai', text: 'Perfect, the entire program is online. You get weekly Zoom sessions plus daily check-ins through the app to keep you accountable. Have you worked with a coach before, or would this be your first time?' },
+      { role: 'client', text: 'nah never done coaching before is that cool' },
+      { role: 'ai', text: 'Absolutely, most of our clients start from scratch and they tend to see the strongest results honestly. Everything is adjusted to your level. Want me to send over the full breakdown with pricing?' },
+      { role: 'client', text: 'ya send it thru' },
+      { role: 'ai', text: 'Just sent it to your email! Take a look when you get a chance. Would you prefer to review it on your own, or would a quick call to walk through it together be more helpful?' },
+      { role: 'client', text: 'just checked it out looks solid im down' },
+      { role: 'ai', text: "That's great to hear! Go ahead and grab a spot on the calendar and we'll map out your goals together on the first call. Does this week or next work better for your schedule?" },
+      { role: 'client', text: 'this week works just booked thursday' },
+      { role: 'ai', text: "Awesome, you're all set! Looking forward to Thursday. Is there anything specific you'd like to start thinking about before our call?" },
+    ];
+
+    // Build step sequence
+    const steps = [];
+    for (const msg of messages) {
+      if (msg.role === 'client') {
+        steps.push({ type: 'client', text: msg.text });
+      } else {
+        steps.push({ type: 'typing' });
+        steps.push({ type: 'ai', text: msg.text });
+      }
+    }
+
+    const chatMessages = document.getElementById('chatMessages');
+    const hint = document.getElementById('hint');
+    let stepIndex = 0;
+    let loadingEl = null;
+    let hintVisible = true;
+
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function renderStep(step) {
+      if (step.type === 'typing') {
+        // Use exact same loading pattern as app.js
+        loadingEl = document.createElement('div');
+        loadingEl.className = 'message-ai is-animated';
+        loadingEl.innerHTML = `
+          <div class="avatar avatar--chat">
+            <div class="avatar-initials" style="background:linear-gradient(135deg, rgba(16,104,68,0.80), rgba(16,104,68,0.60))">HM</div>
+          </div>
+          <div class="message-loading is-animated">
+            <span class="loading-text">Hope Mind is thinking</span>
+            <div class="loading-dots">
+              <span></span><span></span><span></span>
+            </div>
+          </div>`;
+        chatMessages.appendChild(loadingEl);
+        scrollToBottom();
+        return;
+      }
+
+      // Remove loading message if present
+      if (loadingEl) {
+        loadingEl.remove();
+        loadingEl = null;
+      }
+
+      if (step.type === 'client') {
+        const el = document.createElement('div');
+        el.className = 'message-client-wrapper is-animated';
+        el.innerHTML = `
+          <div class="message-client-meta">
+            Lucas T. <span class="via-ig">via Instagram</span>
+          </div>
+          <div class="message-user">
+            <div class="message-user-bubble">${step.text}</div>
+          </div>`;
+        chatMessages.appendChild(el);
+      } else {
+        const el = document.createElement('div');
+        el.className = 'message-ai is-animated';
+        el.innerHTML = `
+          <div class="avatar avatar--chat">
+            <div class="avatar-initials" style="background:linear-gradient(135deg, rgba(16,104,68,0.80), rgba(16,104,68,0.60))">HM</div>
+          </div>
+          <div class="message-ai-content">
+            <div class="message-ai-text">${step.text}</div>
+          </div>`;
+        chatMessages.appendChild(el);
+      }
+
+      scrollToBottom();
+    }
+
+    function reset() {
+      chatMessages.innerHTML = '';
+      stepIndex = 0;
+      loadingEl = null;
+      hint.style.opacity = '1';
+      hintVisible = true;
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Shift' && e.location === 1) {
+        if (stepIndex >= steps.length) return;
+
+        if (hintVisible) {
+          hint.style.opacity = '0';
+          hintVisible = false;
+        }
+
+        renderStep(steps[stepIndex]);
+        stepIndex++;
+        return;
+      }
+
+      if (e.key === 'r' || e.key === 'R') {
+        reset();
+      }
+    });
+  </script>
+</body>
+</html>
